@@ -1,4 +1,4 @@
-# Fashion-MNIST 三层 MLP（从零实现）
+# Fashion-MNIST 三层 MLP
 
 > 复旦大学大数据学院计算机视觉作业
 
@@ -12,7 +12,7 @@
 
 ## 1. 环境准备
 
-建议 Python 3.9+。
+ Python 3.9+
 
 安装依赖：
 
@@ -39,10 +39,6 @@ pip install -r requirements.txt
 ```
 
 ## 3. 完整训练
-
-```bash
-python main.py --mode train
-```
 
 ### 第一步：网格搜索
 
