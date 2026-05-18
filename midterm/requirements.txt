@@ -1,0 +1,10 @@
+torch
+torchvision
+ultralytics
+supervision
+opencv-python
+pillow
+numpy
+tqdm
+pandas
+matplotlib

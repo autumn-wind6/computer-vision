@@ -1,0 +1,54 @@
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments and local config
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Datasets and generated experiment outputs
+data/
+runs/
+outputs/
+**/outputs/
+
+# Generated reports / assignment exports
+final_report.md
+final_report.pdf
+report_assets/
+report.md
+report_template.md
+**/report.md
+**/report_template.md
+*.pdf
+
+# Model weights and checkpoints
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# Large/generated media and archives
+*.mp4
+*.avi
+*.mov
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+
+# Generated logs and result files
+*.log
+*.csv
+*.cache
+
+# Notebook checkpoints
+.ipynb_checkpoints/
