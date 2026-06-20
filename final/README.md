@@ -17,7 +17,13 @@ final/
   configs/          实验配置和路径示例
   envs/             Conda 环境模板
   report/           LaTeX 报告模板
-  scripts/          数据、训练、融合、指标、打包脚本
+  scripts/          命令行脚本入口，按任务类型分组
+    act/            ACT 训练与离线评测
+    data/           数据集、采集视频、COLMAP 输入准备
+    render/         融合视频渲染和帧处理
+    setup/          环境检查、工作区初始化、smoke test
+    utils/          指标汇总、打包、最终审计
+    vision/         2DGS、AIGC 3D 生成与 PLY 融合
   src/cvfinal/      共享 Python 工具
 ```
 
@@ -39,14 +45,14 @@ final/
 当前 Mac 可运行结构检查和报告整理：
 
 ```bash
-python3 scripts/check_environment.py --data-root /workspace/cv_final_data
-python3 scripts/run_smoke_tests.py
+python3 scripts/setup/check_environment.py --data-root /workspace/cv_final_data
+python3 scripts/setup/run_smoke_tests.py
 ```
 
 云端 GPU 机器应通过严格检查：
 
 ```bash
-python scripts/check_environment.py --data-root /workspace/cv_final_data --strict
+python scripts/setup/check_environment.py --data-root /workspace/cv_final_data --strict
 ```
 
 完整一键流程的宿主机需要 `nvcc`、`nvidia-smi`、`mamba`、`git` 和 Blender。`ffmpeg` 与 COLMAP 会随 mamba 环境安装；若宿主机已安装也会优先使用。
@@ -55,7 +61,7 @@ python scripts/check_environment.py --data-root /workspace/cv_final_data --stric
 
 ```bash
 export CVFINAL_DATA_ROOT=/workspace/cv_final_data
-python scripts/init_workspace.py --data-root "$CVFINAL_DATA_ROOT"
+python scripts/setup/init_workspace.py --data-root "$CVFINAL_DATA_ROOT"
 ```
 
 数据准备流程见下文各阶段命令。
@@ -156,7 +162,7 @@ CALVIN LeRobot 数据使用提供的 Hugging Face 仓库：
 
 ```bash
 mamba activate cvfinal-lerobot-act
-python scripts/download_calvin_lerobot.py \
+python scripts/data/download_calvin_lerobot.py \
   --target "$CVFINAL_DATA_ROOT/datasets/calvin_lerobot" \
   --splits splitA splitB splitC splitD
 ```
@@ -170,19 +176,19 @@ python scripts/download_calvin_lerobot.py \
 LeRobot 训练时需要数据集根目录直接暴露 `data/` 和 `meta/`。下载完成后先准备本地训练根目录：
 
 ```bash
-python scripts/prepare_lerobot_dataset.py \
+python scripts/data/prepare_lerobot_dataset.py \
   --dataset-root "$CVFINAL_DATA_ROOT/datasets/calvin_lerobot" \
   --splits splitB \
   --output "$CVFINAL_DATA_ROOT/datasets/calvin_prepared/act_env_b" \
   --force
 
-python scripts/prepare_lerobot_dataset.py \
+python scripts/data/prepare_lerobot_dataset.py \
   --dataset-root "$CVFINAL_DATA_ROOT/datasets/calvin_lerobot" \
   --splits splitA splitB splitC \
   --output "$CVFINAL_DATA_ROOT/datasets/calvin_prepared/act_env_abc" \
   --force
 
-python scripts/prepare_lerobot_dataset.py \
+python scripts/data/prepare_lerobot_dataset.py \
   --dataset-root "$CVFINAL_DATA_ROOT/datasets/calvin_lerobot" \
   --splits splitD \
   --output "$CVFINAL_DATA_ROOT/datasets/calvin_prepared/act_env_b_eval_splitD" \
@@ -199,14 +205,14 @@ python scripts/prepare_lerobot_dataset.py \
 
 ```bash
 mamba activate cvfinal-2dgs
-python scripts/run_2dgs.py train \
+python scripts/vision/run_2dgs.py train \
   --repo "$CVFINAL_DATA_ROOT/third_party/2d-gaussian-splatting" \
   --source "$CVFINAL_DATA_ROOT/datasets/mipnerf360/counter" \
   --output "$CVFINAL_DATA_ROOT/runs/2dgs/background_counter" \
   --resolution 4 \
   --iterations 7000
 
-python scripts/run_2dgs.py render \
+python scripts/vision/run_2dgs.py render \
   --repo "$CVFINAL_DATA_ROOT/third_party/2d-gaussian-splatting" \
   --source "$CVFINAL_DATA_ROOT/datasets/mipnerf360/counter" \
   --output "$CVFINAL_DATA_ROOT/runs/2dgs/background_counter"
@@ -223,7 +229,7 @@ $CVFINAL_DATA_ROOT/captures/object_a/images
 如果上传的是 MP4 环绕视频，先抽帧：
 
 ```bash
-python scripts/prepare_captures_from_video.py \
+python scripts/data/prepare_captures_from_video.py \
   --video /kaggle/working/captures_input/cvfinal-captures/object_video.mp4 \
   --object-a-images "$CVFINAL_DATA_ROOT/captures/object_a/images" \
   --object-c-image "$CVFINAL_DATA_ROOT/captures/object_c/foreground_candidate.png" \
@@ -236,11 +242,11 @@ python scripts/prepare_captures_from_video.py \
 运行 COLMAP 和 2DGS：
 
 ```bash
-python scripts/prepare_colmap_object.py \
+python scripts/data/prepare_colmap_object.py \
   --images "$CVFINAL_DATA_ROOT/captures/object_a/images" \
   --workspace "$CVFINAL_DATA_ROOT/captures/object_a/colmap"
 
-python scripts/run_2dgs.py train \
+python scripts/vision/run_2dgs.py train \
   --repo "$CVFINAL_DATA_ROOT/third_party/2d-gaussian-splatting" \
   --source "$CVFINAL_DATA_ROOT/captures/object_a/colmap" \
   --output "$CVFINAL_DATA_ROOT/runs/2dgs/object_a" \
@@ -252,7 +258,7 @@ python scripts/run_2dgs.py train \
 
 ```bash
 mamba activate cvfinal-aigc-3d
-python scripts/run_threestudio_asset.py \
+python scripts/vision/run_threestudio_asset.py \
   --repo "$CVFINAL_DATA_ROOT/third_party/threestudio" \
   --prompt "a small colorful plastic robot figurine, clean geometry, high quality texture, studio lighting" \
   --output "$CVFINAL_DATA_ROOT/runs/aigc/object_b_text_to_3d"
@@ -269,7 +275,7 @@ $CVFINAL_DATA_ROOT/captures/object_c/foreground.png
 再运行：
 
 ```bash
-python scripts/run_magic123_asset.py \
+python scripts/vision/run_magic123_asset.py \
   --repo "$CVFINAL_DATA_ROOT/third_party/magic123" \
   --image "$CVFINAL_DATA_ROOT/captures/object_c/foreground.png" \
   --output "$CVFINAL_DATA_ROOT/runs/aigc/object_c_image_to_3d"
@@ -280,7 +286,7 @@ python scripts/run_magic123_asset.py \
 将背景、A、B、C 导出或采样为 ASCII PLY，至少包含 `x y z red green blue`。复制并调整 [configs/fusion_transforms.example.json](configs/fusion_transforms.example.json) 中的 `scale`、`rotation_deg`、`translation`。
 
 ```bash
-python scripts/merge_scene_assets.py \
+python scripts/vision/merge_scene_assets.py \
   --config configs/fusion_transforms.example.json \
   --output "$CVFINAL_DATA_ROOT/exports/fusion/counter_with_assets_ascii.ply"
 ```
@@ -288,7 +294,7 @@ python scripts/merge_scene_assets.py \
 高分展示路线：在 Blender 中导入融合 PLY/mesh，设置相机轨迹，渲染 20-40 秒视频。若已有连续帧：
 
 ```bash
-python scripts/frames_to_video.py \
+python scripts/render/frames_to_video.py \
   --frames "$CVFINAL_DATA_ROOT/exports/fusion/frames" \
   --pattern "%05d.png" \
   --fps 24 \
@@ -302,7 +308,7 @@ python scripts/frames_to_video.py \
 基础模型：
 
 ```bash
-python scripts/run_act_experiment.py train \
+python scripts/act/run_act_experiment.py train \
   --config configs/act_env_b.json \
   --output "$CVFINAL_DATA_ROOT/runs/act/env_b"
 ```
@@ -310,7 +316,7 @@ python scripts/run_act_experiment.py train \
 联合模型：
 
 ```bash
-python scripts/run_act_experiment.py train \
+python scripts/act/run_act_experiment.py train \
   --config configs/act_env_abc.json \
   --output "$CVFINAL_DATA_ROOT/runs/act/env_abc"
 ```
@@ -318,12 +324,12 @@ python scripts/run_act_experiment.py train \
 环境 D zero-shot：
 
 ```bash
-python scripts/run_act_experiment.py eval \
+python scripts/act/run_act_experiment.py eval \
   --config configs/act_env_b.json \
   --checkpoint "$CVFINAL_DATA_ROOT/runs/act/env_b/checkpoints/best" \
   --output "$CVFINAL_DATA_ROOT/runs/act/env_b_eval_d"
 
-python scripts/run_act_experiment.py eval \
+python scripts/act/run_act_experiment.py eval \
   --config configs/act_env_abc.json \
   --checkpoint "$CVFINAL_DATA_ROOT/runs/act/env_abc/checkpoints/best" \
   --output "$CVFINAL_DATA_ROOT/runs/act/env_abc_eval_d"
@@ -336,7 +342,7 @@ python scripts/run_act_experiment.py eval \
 导出 CSV 后整理表格：
 
 ```bash
-python scripts/collect_metrics.py \
+python scripts/utils/collect_metrics.py \
   --inputs "$CVFINAL_DATA_ROOT/runs/act/env_b/metrics.csv" "$CVFINAL_DATA_ROOT/runs/act/env_abc/metrics.csv" \
   --output-json results/act_metrics_summary.json \
   --output-md results/act_metrics_summary.md
@@ -351,7 +357,7 @@ report/main.tex
 打包权重与关键资产：
 
 ```bash
-python scripts/package_weights.py \
+python scripts/utils/package_weights.py \
   --output "$CVFINAL_DATA_ROOT/weights/cvfinal_best_weights.zip" \
   --inputs "$CVFINAL_DATA_ROOT/runs/act/env_b/checkpoints/best" "$CVFINAL_DATA_ROOT/runs/act/env_abc/checkpoints/best" "$CVFINAL_DATA_ROOT/exports/fusion"
 ```
@@ -363,5 +369,5 @@ python scripts/package_weights.py \
 本仓库级轻量检查不会训练模型，只验证 JSON、PLY 融合逻辑和 wrapper dry-run：
 
 ```bash
-python3 scripts/run_smoke_tests.py
+python3 scripts/setup/run_smoke_tests.py
 ```

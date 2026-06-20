@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from cvfinal.lerobot_prep import prepare_dataset
 from cvfinal.paths import load_json, write_json

@@ -58,7 +58,7 @@
     ],
     "eval": [
       "python",
-      "scripts/eval_act_offline.py",
+      "scripts/act/eval_act_offline.py",
       "offline dataset eval on splitD; do not use lerobot-eval here"
     ]
   }

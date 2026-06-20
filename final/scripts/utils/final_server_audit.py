@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from cvfinal.paths import load_json
 
@@ -34,7 +34,7 @@ def add_optional(items: list[dict], label: str, path: Path, kind: str = "path") 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit whether all server-side final artifacts exist before shutting down the cloud machine.")
-    parser.add_argument("--project-root", default=str(Path(__file__).resolve().parents[1]))
+    parser.add_argument("--project-root", default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--data-root", default=os.environ.get("CVFINAL_DATA_ROOT", "/workspace/cv_final_data"))
     parser.add_argument("--fusion-config", default=None)
     parser.add_argument("--output-json", default=None)

@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from cvfinal.paths import load_json
 from cvfinal.ply import Vertex, read_ascii_xyzrgb_ply, write_ascii_xyzrgb_ply

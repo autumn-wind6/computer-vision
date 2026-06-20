@@ -7,13 +7,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from cvfinal.paths import load_json
 from cvfinal.ply import Vertex, read_ascii_xyzrgb_ply, write_ascii_xyzrgb_ply
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def run(command: list[str]) -> None:
@@ -57,7 +57,7 @@ def validate_ply_merge() -> None:
             ),
             encoding="utf-8",
         )
-        run([sys.executable, "scripts/merge_scene_assets.py", "--config", str(cfg), "--output", str(out)])
+        run([sys.executable, "scripts/vision/merge_scene_assets.py", "--config", str(cfg), "--output", str(out)])
         vertices = read_ascii_xyzrgb_ply(out)
         assert len(vertices) == 2, len(vertices)
         assert abs(vertices[1].x - 3.0) < 1e-8, vertices[1]
@@ -68,7 +68,7 @@ def validate_dry_runs() -> None:
     run(
         [
             sys.executable,
-            "scripts/run_2dgs.py",
+            "scripts/vision/run_2dgs.py",
             "train",
             "--repo",
             "/missing/2dgs",
@@ -87,7 +87,7 @@ def validate_dry_runs() -> None:
         run(
             [
                 sys.executable,
-                "scripts/prepare_lerobot_dataset.py",
+                "scripts/data/prepare_lerobot_dataset.py",
                 "--dataset-root",
                 str(tmpdir / "calvin_lerobot"),
                 "--splits",
@@ -100,7 +100,7 @@ def validate_dry_runs() -> None:
     run(
         [
             sys.executable,
-            "scripts/run_act_experiment.py",
+            "scripts/act/run_act_experiment.py",
             "train",
             "--config",
             "configs/act_env_b.json",
@@ -112,7 +112,7 @@ def validate_dry_runs() -> None:
     run(
         [
             sys.executable,
-            "scripts/prepare_captures_from_video.py",
+            "scripts/data/prepare_captures_from_video.py",
             "--video",
             "/tmp/object_video.mp4",
             "--object-a-images",

@@ -16,6 +16,7 @@ cvfinal-captures.zip
 cvfinal-captures/
 
 # LaTeX build artifacts
+report/
 report/*.aux
 report/*.bbl
 report/*.blg
@@ -25,5 +26,3 @@ report/*.log
 report/*.out
 report/*.synctex.gz
 report/*.toc
-report/*.xdv
-report/exports

@@ -239,7 +239,7 @@ train_act_if_needed() {
     return 0
   fi
   log "Training ACT model: $label"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/run_act_experiment.py" train \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/act/run_act_experiment.py" train \
     --repo "$REPO_LEROBOT" \
     --config "$config" \
     --output "$output"
@@ -255,7 +255,7 @@ eval_act_if_needed() {
     return 0
   fi
   log "Evaluating ACT model: $label"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/run_act_experiment.py" eval \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/act/run_act_experiment.py" eval \
     --repo "$REPO_LEROBOT" \
     --config "$config" \
     --checkpoint "$checkpoint" \
@@ -385,8 +385,8 @@ stage_init() {
   log "Data root: $DATA_ROOT"
   need_cmd "$PYTHON_EXE"
   mkdir -p "$DATA_ROOT" "$CONDA_ENVS_PATH" "$CONDA_PKGS_DIRS" "$PIP_CACHE_DIR" "$HF_HOME" "$TORCH_HOME" "$WANDB_DIR"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/init_workspace.py" --data-root "$DATA_ROOT"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/check_environment.py" --data-root "$DATA_ROOT" --strict
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/setup/init_workspace.py" --data-root "$DATA_ROOT"
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/setup/check_environment.py" --data-root "$DATA_ROOT" --strict
 }
 
 stage_setup_envs() {
@@ -424,7 +424,7 @@ stage_prepare_inputs() {
 
   if [ -f "$video" ]; then
     log "Extracting object-A frames from $video"
-    mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/prepare_captures_from_video.py" \
+    mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/data/prepare_captures_from_video.py" \
       --video "$video" \
       --object-a-images "$DATA_ROOT/captures/object_a/images" \
       --object-c-image "$DATA_ROOT/captures/object_c/foreground_candidate.png" \
@@ -455,12 +455,12 @@ stage_calvin() {
   fi
 
   log "Downloading CALVIN LeRobot splits"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/download_calvin_lerobot.py" \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/data/download_calvin_lerobot.py" \
     --target "$DATA_ROOT/datasets/calvin_lerobot" \
     --splits splitA splitB splitC splitD
 
   log "Preparing splitB"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/prepare_lerobot_dataset.py" \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/data/prepare_lerobot_dataset.py" \
     --dataset-root "$DATA_ROOT/datasets/calvin_lerobot" \
     --splits splitB \
     --output "$DATA_ROOT/datasets/calvin_prepared/act_env_b" \
@@ -468,14 +468,14 @@ stage_calvin() {
     "${single_split_prepare_args[@]}"
 
   log "Preparing splitA+B+C"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/prepare_lerobot_dataset.py" \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/data/prepare_lerobot_dataset.py" \
     --dataset-root "$DATA_ROOT/datasets/calvin_lerobot" \
     --splits splitA splitB splitC \
     --output "$DATA_ROOT/datasets/calvin_prepared/act_env_abc" \
     --force
 
   log "Preparing splitD for evaluation"
-  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/prepare_lerobot_dataset.py" \
+  mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/data/prepare_lerobot_dataset.py" \
     --dataset-root "$DATA_ROOT/datasets/calvin_lerobot" \
     --splits splitD \
     --output "$DATA_ROOT/datasets/calvin_prepared/act_env_b_eval_splitD" \
@@ -516,7 +516,7 @@ stage_act() {
 stage_prepare_fusion() {
   log "Normalizing fusion asset PLY files"
   mkdir -p "$DATA_ROOT/exports/ply"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/prepare_fusion_assets.py" \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/vision/prepare_fusion_assets.py" \
     --config "$FUSION_CONFIG" \
     --data-root "$DATA_ROOT" \
     --force
@@ -524,7 +524,7 @@ stage_prepare_fusion() {
 
 stage_merge_fusion() {
   log "Merging normalized fusion PLY files"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/merge_scene_assets.py" \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/vision/merge_scene_assets.py" \
     --config "$FUSION_CONFIG" \
     --output "$FUSION_PLY"
 }
@@ -539,7 +539,7 @@ stage_vision() {
   fi
 
   log "Training background 2DGS"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/run_2dgs.py" train \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/vision/run_2dgs.py" train \
     --repo "$REPO_2DGS" \
     --source "$MIPNERF_COUNTER_DIR" \
     --output "$DATA_ROOT/runs/2dgs/background_counter" \
@@ -547,18 +547,18 @@ stage_vision() {
     --iterations "$D2GS_ITERATIONS"
 
   log "Rendering background 2DGS"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/run_2dgs.py" render \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/vision/run_2dgs.py" render \
     --repo "$REPO_2DGS" \
     --source "$MIPNERF_COUNTER_DIR" \
     --output "$DATA_ROOT/runs/2dgs/background_counter"
 
   log "Running COLMAP for object A"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/prepare_colmap_object.py" \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/data/prepare_colmap_object.py" \
     --images "$DATA_ROOT/captures/object_a/images" \
     --workspace "$DATA_ROOT/captures/object_a/colmap"
 
   log "Training object-A 2DGS"
-  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/run_2dgs.py" train \
+  mamba_exec "$ENV_2DGS" python "$PROJECT_ROOT/scripts/vision/run_2dgs.py" train \
     --repo "$REPO_2DGS" \
     --source "$DATA_ROOT/captures/object_a/colmap/undistorted" \
     --output "$DATA_ROOT/runs/2dgs/object_a" \
@@ -566,14 +566,14 @@ stage_vision() {
     --iterations "$D2GS_ITERATIONS"
 
   log "Generating object B with threestudio"
-  mamba_exec "$ENV_AIGC" python "$PROJECT_ROOT/scripts/run_threestudio_asset.py" \
+  mamba_exec "$ENV_AIGC" python "$PROJECT_ROOT/scripts/vision/run_threestudio_asset.py" \
     --repo "$REPO_THREESTUDIO" \
     --prompt "$PROMPT_OBJECT_B" \
     --output "$DATA_ROOT/runs/aigc/object_b_text_to_3d" \
     trainer.max_steps="$THREESTUDIO_MAX_STEPS"
 
   log "Generating object C with Magic123"
-  mamba_exec "$ENV_AIGC" python "$PROJECT_ROOT/scripts/run_magic123_asset.py" \
+  mamba_exec "$ENV_AIGC" python "$PROJECT_ROOT/scripts/vision/run_magic123_asset.py" \
     --repo "$REPO_MAGIC123" \
     --image "$DATA_ROOT/captures/object_c/foreground.png" \
     --output "$DATA_ROOT/runs/aigc/object_c_image_to_3d" \
@@ -595,7 +595,7 @@ stage_render_video() {
   renderer="${FUSION_RENDERER:-pointcloud}"
   if [ "$renderer" = "blender" ]; then
     need_cmd "$BLENDER_EXE"
-    "$BLENDER_EXE" --background --python "$PROJECT_ROOT/scripts/render_fusion_blender.py" -- \
+    "$BLENDER_EXE" --background --python "$PROJECT_ROOT/scripts/render/render_fusion_blender.py" -- \
       --input "$FUSION_PLY" \
       --output "$FUSION_VIDEO" \
       --fps 24 \
@@ -605,7 +605,7 @@ stage_render_video() {
       --samples "$FUSION_VIDEO_SAMPLES"
   else
     log "Using point-cloud renderer (set FUSION_RENDERER=blender to use Blender)"
-    "$PYTHON_EXE" "$PROJECT_ROOT/scripts/render_fusion_pointcloud.py" \
+    "$PYTHON_EXE" "$PROJECT_ROOT/scripts/render/render_fusion_pointcloud.py" \
       --input "$FUSION_PLY" \
       --output "$FUSION_VIDEO" \
       --fps 24 \
@@ -627,7 +627,7 @@ stage_package() {
 
   if [ -f "$DATA_ROOT/runs/act/env_b/metrics.csv" ] && [ -f "$DATA_ROOT/runs/act/env_abc/metrics.csv" ]; then
     log "Collecting ACT metrics"
-    mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/collect_metrics.py" \
+    mamba_exec "$ENV_ACT" python "$PROJECT_ROOT/scripts/utils/collect_metrics.py" \
       --inputs "$DATA_ROOT/runs/act/env_b/metrics.csv" "$DATA_ROOT/runs/act/env_abc/metrics.csv" \
       --output-json "$PROJECT_ROOT/results/act_metrics_summary.json" \
       --output-md "$PROJECT_ROOT/results/act_metrics_summary.md"
@@ -636,7 +636,7 @@ stage_package() {
   fi
 
   log "Packaging checkpoints and fusion exports"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/package_weights.py" \
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/utils/package_weights.py" \
     --output "$DATA_ROOT/weights/cvfinal_best_weights.zip" \
     --strict \
     --inputs "$DATA_ROOT/runs/act/env_b/checkpoints/best" \
@@ -645,7 +645,7 @@ stage_package() {
 
   log "Packaging final server artifact bundle"
   mkdir -p "$DATA_ROOT/exports/videos" "$REPORT_ASSETS_DIR"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/package_weights.py" \
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/utils/package_weights.py" \
     --output "$SERVER_BUNDLE" \
     --strict \
     --inputs "$DATA_ROOT/weights/cvfinal_best_weights.zip" \
@@ -661,7 +661,7 @@ stage_package() {
 stage_audit() {
   log "Auditing final server artifacts"
   need_cmd "$PYTHON_EXE"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/final_server_audit.py" \
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/utils/final_server_audit.py" \
     --project-root "$PROJECT_ROOT" \
     --data-root "$DATA_ROOT" \
     --fusion-config "$FUSION_CONFIG"
@@ -691,7 +691,7 @@ stage_cleanup_caches() {
 
 stage_smoke() {
   need_cmd "$PYTHON_EXE"
-  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/run_smoke_tests.py"
+  "$PYTHON_EXE" "$PROJECT_ROOT/scripts/setup/run_smoke_tests.py"
 }
 
 stage_server_final() {
