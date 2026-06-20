@@ -1,2 +1,0 @@
-$xelatex = '/Library/TeX/texbin/xelatex %O %S';
-$xdvipdfmx = '/Library/TeX/texbin/xdvipdfmx -E -o %D %O %S';
