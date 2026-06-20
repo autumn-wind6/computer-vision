@@ -1,0 +1,10 @@
+{
+  "experiment": "background_counter_2dgs",
+  "scene": "counter",
+  "source": "/workspace/cv_final_data/datasets/mipnerf360/counter",
+  "output": "/workspace/cv_final_data/runs/2dgs/background_counter",
+  "resolution": 6,
+  "iterations": 4000,
+  "white_background": false,
+  "notes": "Fast first-pass setting used by cloud_oneclick.sh. Increase iterations only after the fusion pipeline works."
+}

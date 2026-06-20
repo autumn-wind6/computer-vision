@@ -1,0 +1,25 @@
+name: cvfinal-lerobot-act
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - git
+  - git-lfs
+  - ffmpeg
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.1
+  - pip:
+      - datasets
+      - huggingface_hub
+      - matplotlib
+      - numpy
+      - pandas
+      - safetensors
+      - tqdm
+      - wandb
+      - "av>=15.0.0,<16.0.0"
+      - "accelerate>=1.14.0,<2.0.0"

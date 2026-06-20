@@ -1,0 +1,28 @@
+name: cvfinal-2dgs
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - git
+  - cmake
+  - ninja
+  - ffmpeg
+  - colmap
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.1
+  - pip:
+      - numpy
+      - opencv-python
+      - pillow
+      - plyfile
+      - tqdm
+      - tensorboard
+      - matplotlib
+      - mediapy
+      - open3d
+      - trimesh
+      - scikit-image

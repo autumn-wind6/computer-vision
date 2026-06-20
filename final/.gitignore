@@ -1,0 +1,29 @@
+# macOS / Python cache
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# local environments and test caches
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+
+# generated upload/submission archives
+cvfinal-code.zip
+cvfinal-captures.zip
+cvfinal-captures/
+
+# LaTeX build artifacts
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.fdb_latexmk
+report/*.fls
+report/*.log
+report/*.out
+report/*.synctex.gz
+report/*.toc
+report/*.xdv
+report/exports

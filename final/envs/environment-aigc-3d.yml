@@ -1,0 +1,31 @@
+name: cvfinal-aigc-3d
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - git
+  - git-lfs
+  - ninja
+  - ffmpeg
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.1
+  - pip:
+      - accelerate
+      - diffusers
+      - einops
+      - imageio
+      - imageio-ffmpeg
+      - numpy
+      - omegaconf
+      - opencv-python
+      - pillow
+      - plyfile
+      - rembg
+      - scipy
+      - transformers
+      - trimesh
+      - wandb

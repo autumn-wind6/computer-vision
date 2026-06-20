@@ -1,0 +1,20 @@
+{
+  "data_root": "/workspace/cv_final_data",
+  "dataset_root": "/workspace/cv_final_data/datasets",
+  "capture_root": "/workspace/cv_final_data/captures",
+  "third_party_root": "/workspace/cv_final_data/third_party",
+  "run_root": "/workspace/cv_final_data/runs",
+  "export_root": "/workspace/cv_final_data/exports",
+  "log_root": "/workspace/cv_final_data/logs",
+  "weight_root": "/workspace/cv_final_data/weights",
+  "repositories": {
+    "2dgs": "/workspace/cv_final_data/third_party/2d-gaussian-splatting",
+    "threestudio": "/workspace/cv_final_data/third_party/threestudio",
+    "magic123": "/workspace/cv_final_data/third_party/magic123",
+    "lerobot": "/workspace/cv_final_data/third_party/lerobot"
+  },
+  "datasets": {
+    "mipnerf360_counter": "/workspace/cv_final_data/datasets/mipnerf360/counter",
+    "calvin_lerobot": "/workspace/cv_final_data/datasets/calvin_lerobot"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "ascii_ply_xyzrgb",
+  "coordinate_system": "right_handed_y_up",
+  "assets": [
+    {
+      "name": "background_counter",
+      "path": "$CVFINAL_DATA_ROOT/exports/ply/background_counter_ascii.ply",
+      "scale": 1.0,
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "translation": [0.0, 0.0, 0.0],
+      "default_color": [180, 180, 180]
+    },
+    {
+      "name": "object_a_real_2dgs",
+      "path": "$CVFINAL_DATA_ROOT/exports/ply/object_a_ascii.ply",
+      "scale": 0.35,
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "translation": [0.2, 0.0, 0.4],
+      "default_color": [220, 80, 60]
+    },
+    {
+      "name": "object_b_text_to_3d",
+      "path": "$CVFINAL_DATA_ROOT/exports/ply/object_b_ascii.ply",
+      "scale": 0.28,
+      "rotation_deg": [0.0, 35.0, 0.0],
+      "translation": [-0.45, 0.0, 0.25],
+      "default_color": [70, 140, 230]
+    },
+    {
+      "name": "object_c_image_to_3d",
+      "path": "$CVFINAL_DATA_ROOT/exports/ply/object_c_ascii.ply",
+      "scale": 0.3,
+      "rotation_deg": [0.0, -25.0, 0.0],
+      "translation": [0.55, 0.0, -0.15],
+      "default_color": [80, 180, 100]
+    }
+  ]
+}

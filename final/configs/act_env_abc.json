@@ -1,0 +1,65 @@
+{
+  "experiment": "act_env_abc",
+  "dataset_repo_id": "xiaoma26/calvin-lerobot",
+  "dataset_root": "$CVFINAL_DATA_ROOT/datasets/calvin_lerobot",
+  "prepared_root": "$CVFINAL_DATA_ROOT/datasets/calvin_prepared",
+  "local_repo_id": "cvfinal/calvin_env_abc",
+  "train_splits": [
+    "splitA",
+    "splitB",
+    "splitC"
+  ],
+  "eval_split": "splitD",
+  "policy": {
+    "type": "act",
+    "chunk_size": 100,
+    "hidden_dim": 512,
+    "dim_feedforward": 3200,
+    "n_encoder_layers": 4,
+    "n_decoder_layers": 1,
+    "kl_weight": 10.0
+  },
+  "training": {
+    "batch_size": 8,
+    "steps": 50000,
+    "learning_rate": 1e-5,
+    "weight_decay": 0.0001,
+    "optimizer": "adamw",
+    "seed": 42,
+    "log_every_steps": 100,
+    "save_every_steps": 5000,
+    "num_workers": 4
+  },
+  "eval": {
+    "n_episodes": 50
+  },
+  "metrics": [
+    "action_l1",
+    "action_mse",
+    "success_rate"
+  ],
+  "command_template": {
+    "train": [
+      "lerobot-train",
+      "--policy.type=act",
+      "--dataset.repo_id={local_repo_id}",
+      "--dataset.root={prepared_dataset}",
+      "--output_dir={output}",
+      "--job_name={experiment}",
+      "--policy.device=cuda",
+      "--steps={steps}",
+      "--batch_size={batch_size}",
+      "--policy.chunk_size={chunk_size}",
+      "--optimizer.lr={learning_rate}",
+      "--num_workers={num_workers}",
+      "--wandb.enable=false",
+      "--policy.push_to_hub=false",
+      "--seed={seed}"
+    ],
+    "eval": [
+      "python",
+      "scripts/eval_act_offline.py",
+      "offline dataset eval on splitD; do not use lerobot-eval here"
+    ]
+  }
+}
